@@ -1,0 +1,827 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Mao">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="HTTP 缓存客户端每次都请求服务器，流量消耗大，并且服务器也有压力 缓存主要针对 css js 图片 这些更新频率不大的静态资源文件 缓存头部Cache-Control请求 &amp; 响应头， 缓存控制字段    值 作用    no-store 所有内容不缓存   no-cache 缓存,但使用缓存之前需要请求服务器判断资源是否是最新   max-age&#x3D;x(秒) 请求缓存后的x秒内不在发起">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTTP缓存">
+<meta property="og:url" content="https://nicesonec.gitee.io/2020/09/25/HTTP%E7%BC%93%E5%AD%98/index.html">
+<meta property="og:site_name" content="Mao&#39;s blog">
+<meta property="og:description" content="HTTP 缓存客户端每次都请求服务器，流量消耗大，并且服务器也有压力 缓存主要针对 css js 图片 这些更新频率不大的静态资源文件 缓存头部Cache-Control请求 &amp; 响应头， 缓存控制字段    值 作用    no-store 所有内容不缓存   no-cache 缓存,但使用缓存之前需要请求服务器判断资源是否是最新   max-age&#x3D;x(秒) 请求缓存后的x秒内不在发起">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-09-24T18:46:29.000Z">
+<meta property="article:modified_time" content="2020-11-22T06:54:36.000Z">
+<meta property="article:author" content="Mao">
+<meta property="article:tag" content="network">
+<meta property="article:tag" content="http">
+<meta property="article:tag" content="cache">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>HTTP缓存 - Mao&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"nicesonec.gitee.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":"❡"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Mao&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="HTTP缓存"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-09-25 02:46" pubdate>
+          2020年9月25日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          2.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          20 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">HTTP缓存</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="HTTP-缓存"><a href="#HTTP-缓存" class="headerlink" title="HTTP 缓存"></a>HTTP 缓存</h1><p>客户端每次都请求服务器，流量消耗大，并且服务器也有压力</p>
+<p>缓存主要针对 <code>css</code> <code>js</code> <code>图片</code> 这些更新频率不大的静态资源文件</p>
+<h2 id="缓存头部"><a href="#缓存头部" class="headerlink" title="缓存头部"></a>缓存头部</h2><h3 id="Cache-Control"><a href="#Cache-Control" class="headerlink" title="Cache-Control"></a>Cache-Control</h3><p>请求 &amp; 响应头， 缓存控制字段</p>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>no-store</td>
+<td>所有内容不缓存</td>
+</tr>
+<tr>
+<td>no-cache</td>
+<td>缓存,但使用缓存之前需要请求服务器判断资源是否是最新</td>
+</tr>
+<tr>
+<td>max-age=x(秒)</td>
+<td>请求缓存后的x秒内不在发起请求</td>
+</tr>
+<tr>
+<td>s-maxage=x(秒)</td>
+<td>代理服务器请求源站缓存后x秒内不在发起请求，只对CDN有效</td>
+</tr>
+<tr>
+<td>public</td>
+<td>客户端和代理服务器(CDN)都可缓存</td>
+</tr>
+<tr>
+<td>private</td>
+<td>只有客户端可以缓存</td>
+</tr>
+</tbody></table>
+<h3 id="Expires"><a href="#Expires" class="headerlink" title="Expires"></a>Expires</h3><ul>
+<li>响应头</li>
+<li>代表缓存资源过期时间，由服务器提供</li>
+<li><code>HTTP1.0</code> 的属性, 比 <code>max-age</code> 优先级低</li>
+</ul>
+<h3 id="Last-Modified"><a href="#Last-Modified" class="headerlink" title="Last-Modified"></a>Last-Modified</h3><ul>
+<li>响应头</li>
+<li>标识资源最新修改时间,由服务器提供</li>
+</ul>
+<h3 id="If-Midified-Since"><a href="#If-Midified-Since" class="headerlink" title="If-Midified-Since"></a>If-Midified-Since</h3><ul>
+<li>请求头</li>
+<li>资源最新的修改时间</li>
+<li>和 <code>Last-Modified</code> 一对,会进行对比，判断要不要重新发送资源请求</li>
+</ul>
+<h3 id="Etag"><a href="#Etag" class="headerlink" title="Etag"></a>Etag</h3><ul>
+<li>响应头</li>
+<li>资源唯一标识，由服务器提供</li>
+</ul>
+<h3 id="If-None-Match"><a href="#If-None-Match" class="headerlink" title="If-None-Match"></a>If-None-Match</h3><ul>
+<li>请求头,缓存资源标识</li>
+<li>由浏览器提供给服务器 (其实就是上一次服务器给的Etag) 和 Etag 是一对，会进行比较</li>
+</ul>
+<h2 id="工作流程"><a href="#工作流程" class="headerlink" title="工作流程"></a>工作流程</h2><h3 id="服务器和浏览器约定一个过期时间-Expires"><a href="#服务器和浏览器约定一个过期时间-Expires" class="headerlink" title="服务器和浏览器约定一个过期时间 Expires"></a>服务器和浏览器约定一个过期时间 Expires</h3><h4 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h4><pre><code class=" mermaid">sequenceDiagram
+客户端-&gt;&gt;服务端: 请求 x.js
+服务端-&gt;&gt;客户端: x.js &amp; Expires
+客户端-&gt;&gt;客户端: Expires 没过期，使用本地缓存
+客户端-&gt;&gt;服务端: Expires 过期，请求服务端
+服务端-&gt;&gt;客户端: x.js &amp; Expires
+</code></pre>
+
+
+<ul>
+<li>浏览器向服务器请求 <code>x.js</code> 文件</li>
+<li>服务器将 <code>x.js</code> 响应回客户端,并约定一个时间 <code>Expires</code></li>
+<li>后续请求的时候，浏览器先对比一下当前时间是否大于了约定的 <code>Expires</code></li>
+<li>如果时间没过，则用本地的缓存，否则才发送请求 </li>
+</ul>
+<h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><ul>
+<li>如果 <code>Expires</code> 已经过期，浏览器再次请求服务器，但实际上文件并没有变化,就白请求了</li>
+</ul>
+<h3 id="在约定文件过期的基础上，加上最新文件修改时间-Last-Modified-amp-If-Modified-Since-来进行对比"><a href="#在约定文件过期的基础上，加上最新文件修改时间-Last-Modified-amp-If-Modified-Since-来进行对比" class="headerlink" title="在约定文件过期的基础上，加上最新文件修改时间 (Last-Modified &amp; If-Modified-Since) 来进行对比"></a>在约定文件过期的基础上，加上最新文件修改时间 (Last-Modified &amp; If-Modified-Since) 来进行对比</h3><h4 id="流程-1"><a href="#流程-1" class="headerlink" title="流程"></a>流程</h4><pre><code class=" mermaid">sequenceDiagram
+客户端-&gt;&gt;服务端: 请求 x.js
+服务端-&gt;&gt;客户端: x.js + Expires + Last-Modifed
+客户端-&gt;&gt;客户端: Expires 没过期，使用本地缓存
+客户端-&gt;&gt;服务端: Expires 过期，请求服务端 带上 Last-Modified
+服务端-&gt;&gt;客户端: 返回 304 Not Modified 如果 Last-Modifieid = 资源的修改时间
+服务端-&gt;&gt;客户端: 否则返回 x.js + Expires + Last-Modified
+</code></pre>
+
+<ul>
+<li>浏览器向服务器请求 <code>x.js</code> 文件</li>
+<li>服务器将 <code>x.js</code> 响应回客户端,并约定一个时间 <code>Expires</code>, 并且将 <code>Last-Modified</code>带上</li>
+<li>接下来就分情况了</li>
+<li><code>Expires</code> 没有过期<ul>
+<li> 浏览器进行使用本地缓存</li>
+</ul>
+</li>
+<li><code>Expires</code> 过期以后<ul>
+<li>请求资源，带上 <code>If-Modified-Since</code></li>
+<li>服务器将 <code>If-Modified-Since</code> 的时间和文件的修改时间进行对比</li>
+<li>如果不相等，则服务器会去查找最新文件+返回<code>Last-Modified</code></li>
+<li>如果相等，则返回 <code>304 Not Modified</code> 响应</li>
+</ul>
+</li>
+</ul>
+<h4 id="问题-1"><a href="#问题-1" class="headerlink" title="问题"></a>问题</h4><ul>
+<li>浏览器可以随意修改 <code>Expires</code></li>
+<li>由于 <code>Last-Modified</code> 只能精确到秒,极端情况下<ul>
+<li>假设文件是在 1s 内发生变化</li>
+<li>则 <code>Last-Modified</code> 无法感知文件的变化</li>
+<li>浏览器<code>永远拿不到</code>最新的文件</li>
+</ul>
+</li>
+</ul>
+<h3 id="改为返回-max-age-Etag-amp-If-None-Match"><a href="#改为返回-max-age-Etag-amp-If-None-Match" class="headerlink" title="改为返回 max-age +  Etag &amp; If-None-Match"></a>改为返回 <code>max-age</code> +  <code>Etag &amp; If-None-Match</code></h3><h4 id="流程-2"><a href="#流程-2" class="headerlink" title="流程"></a>流程</h4><pre><code class=" mermaid">sequenceDiagram
+客户端-&gt;&gt;服务端: 请求 x.js
+服务端-&gt;&gt;客户端: x.js + max-age + Etag
+客户端-&gt;&gt;客户端: max-age 没过期，使用本地缓存
+客户端-&gt;&gt;服务端: max-age 过期，请求服务端 带上 If-None-Match
+服务端-&gt;&gt;客户端: 返回 304 Not Modified 如果 If-None-Match = 资源当前的标志
+服务端-&gt;&gt;客户端: 否则返回 x.js + max-age + Etag
+</code></pre>
+
+<ul>
+<li>浏览器向服务器请求 <code>x.js</code> 文件</li>
+<li>服务器将 <code>x.js</code> 响应回客户端,并约定一个过期时间 <code>max-age</code>, 并且将 <code>Etag</code>带上</li>
+<li>接下来就分情况了</li>
+<li><code>max-age</code> 没有过期<ul>
+<li> 浏览器进行使用本地缓存</li>
+</ul>
+</li>
+<li><code>max-age</code> 过期以后<ul>
+<li>请求资源，带上 <code>If-None-Match</code></li>
+<li>服务器将 <code>If-None-Match</code> 的时间和文件的修改时间进行对比</li>
+<li>如果不相等，则服务器会去查找最新文件+返回新的<code>Etag</code></li>
+<li>如果相等，则返回 <code>304 Not Modified</code> 响应</li>
+</ul>
+</li>
+<li>由于 <code>max-age</code> 优先级高于 <code>Expires</code>, <code>Etag</code> 优先级 高于 <code>Last-Modified</code>,就算添加上了第二个流程的头部，也不会起作用</li>
+</ul>
+<h3 id="以上方案的问题以及解决思路"><a href="#以上方案的问题以及解决思路" class="headerlink" title="以上方案的问题以及解决思路"></a>以上方案的问题以及解决思路</h3><h4 id="问题-2"><a href="#问题-2" class="headerlink" title="问题"></a>问题</h4><ul>
+<li>max-age | Expires 不过期，浏览器是没办法<code>主动感知</code>服务器的文件变化</li>
+<li>从 HTTP 协议本身上就很难解决</li>
+</ul>
+<h4 id="解决策略"><a href="#解决策略" class="headerlink" title="解决策略"></a>解决策略</h4><p><strong>hash 缓存</strong></p>
+<p>通过<code>不缓存 html</code> 为静态文件添加 <code>hash标识</code> 如果文件内容变动了，则文件名也变动</p>
+<p>解决浏览器无法跳过过期时间，主动感知文件变化的问题。</p>
+<p>从根本上解决，浏览器过期时间没到浏览器不能主动请求服务器的问题</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/xx-JFKDFJKKSJDKFKJSDKF.js?&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+
+<h2 id="浏览器的操作对缓存的影响"><a href="#浏览器的操作对缓存的影响" class="headerlink" title="浏览器的操作对缓存的影响"></a>浏览器的操作对缓存的影响</h2><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>地址栏回车,页面跳转，前进后退</td>
+<td>没啥用</td>
+</tr>
+<tr>
+<td>F5 刷新</td>
+<td>Expires、Cache-Contrl 失效</td>
+</tr>
+<tr>
+<td>Ctrl + F5</td>
+<td>Expires、Cache-Contrl &amp; Last-Modified、Etag 失效</td>
+</tr>
+</tbody></table>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/network/" class="category-chain-item">network</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/network/">#network</a>
+      
+        <a href="/tags/http/">#http</a>
+      
+        <a href="/tags/cache/">#cache</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>HTTP缓存</div>
+      <div>https://nicesonec.gitee.io/2020/09/25/HTTP缓存/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Mao</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年9月25日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/09/25/DNS/" title="DNS">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">DNS</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('mermaid' in window) {
+        mermaid.init();
+      }
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hello</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,718 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Mao">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="装饰器基本使用1234567891011121314def logger(func):    def decorator(*args, **kwargs):        print(&amp;#x27;before...&amp;#x27;)        res &#x3D; func(*args, **kwargs)        print(&amp;#x27;after&amp;#x27;)        return res">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python神奇的装饰器">
+<meta property="og:url" content="https://nicesonec.gitee.io/2020/10/28/python%E7%A5%9E%E5%A5%87%E7%9A%84%E8%A3%85%E9%A5%B0%E5%99%A8/index.html">
+<meta property="og:site_name" content="Mao&#39;s blog">
+<meta property="og:description" content="装饰器基本使用1234567891011121314def logger(func):    def decorator(*args, **kwargs):        print(&amp;#x27;before...&amp;#x27;)        res &#x3D; func(*args, **kwargs)        print(&amp;#x27;after&amp;#x27;)        return res">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-10-27T23:05:07.000Z">
+<meta property="article:modified_time" content="2020-11-22T06:54:36.000Z">
+<meta property="article:author" content="Mao">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>python神奇的装饰器 - Mao&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"nicesonec.gitee.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":"❡"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Mao&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="python神奇的装饰器"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-10-28 07:05" pubdate>
+          2020年10月28日 早上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          3.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          27 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">python神奇的装饰器</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="装饰器"><a href="#装饰器" class="headerlink" title="装饰器"></a>装饰器</h1><h2 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">logger</span>(<span class="hljs-params">func</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">decorator</span>(<span class="hljs-params">*args, **kwargs</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;before...&#x27;</span>)<br>        res = func(*args, **kwargs)<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;after&#x27;</span>)<br>        <span class="hljs-keyword">return</span> res<br>    <span class="hljs-keyword">return</span> decorator<br><br><br><span class="hljs-meta">@logger</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">func</span>():<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;func...&#x27;</span>)<br><br>func()<br></code></pre></td></tr></table></figure>
+
+
+<h2 id="保存元数据"><a href="#保存元数据" class="headerlink" title="保存元数据"></a>保存元数据</h2><p>包装了以后，一些函数元数据就丢失了</p>
+<ul>
+<li><p><code>__name__</code></p>
+</li>
+<li><p><code>__doc__</code></p>
+</li>
+<li><p><code>__annotations__</code></p>
+</li>
+<li><p><code>__defaults__</code></p>
+</li>
+<li><p><code>__closure__</code></p>
+</li>
+<li><p>可以手动的进行设置，但是可能费事费力还不全</p>
+</li>
+<li><p>可以使用 <code>functions.update_wrapper</code> 方法，一次性将多个数据保留</p>
+</li>
+<li><p>可以使用 <code>@functools.wraps</code>,将元数据保留，不过底层也是 <code>upodate_wrapper</code>实现的</p>
+</li>
+<li><p>后两个方式还能使用 <code>__wrapper__</code> 属性获取原始被包装的方法</p>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">logger</span>(<span class="hljs-params">func</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">decorator</span>(<span class="hljs-params">*args, **kwargs</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;before...&#x27;</span>)<br>        res = func(*args, **kwargs)<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;after&#x27;</span>)<br>        <span class="hljs-keyword">return</span> res<br>    <span class="hljs-keyword">return</span> decorator<br><br><br><span class="hljs-meta">@logger</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">func</span>():<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;func...&#x27;</span>)<br><br>func()<br></code></pre></td></tr></table></figure>
+
+<h2 id="带参数的装饰器"><a href="#带参数的装饰器" class="headerlink" title="带参数的装饰器"></a>带参数的装饰器</h2><ul>
+<li>带参数的装饰器本质上是一个装饰器工厂</li>
+<li>工厂生产出来的装饰器才是真正给方法用的</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">a</span>(<span class="hljs-params">*ty_args, **ty_kwargs</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">decorator</span>(<span class="hljs-params">func</span>):<br>        <span class="hljs-keyword">def</span> <span class="hljs-title function_">wrap</span>(<span class="hljs-params">*args, **kwargs</span>):<br>            <span class="hljs-keyword">return</span> func(*args, **kwargs)<br>        <span class="hljs-keyword">return</span> wrap<br>    <span class="hljs-keyword">return</span> decorator<br><span class="hljs-meta">@a(<span class="hljs-params"><span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">xxx</span>(<span class="hljs-params">a, b</span>):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;func...&#x27;</span>)<br><br><br>xxx(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<h2 id="不带括号的"><a href="#不带括号的" class="headerlink" title="不带括号的"></a>不带括号的</h2><p>实现一个装饰器 <code>c</code> 可以 <code>@c(a=1,b=2)</code>使用 也可以 <code>@c</code> 使用</p>
+<p>简单的带参装饰器:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">c</span>(<span class="hljs-params">a=<span class="hljs-number">1</span>, b=<span class="hljs-number">2</span></span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">d</span>(<span class="hljs-params">func</span>):<br>        <span class="hljs-keyword">def</span> <span class="hljs-title function_">e</span>(<span class="hljs-params">*args, **kwargs</span>):<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;a=<span class="hljs-subst">&#123;a&#125;</span>, b=<span class="hljs-subst">&#123;b&#125;</span>&#x27;</span>)<br>            <span class="hljs-keyword">return</span> func(*args, **kwargs)<br>        <span class="hljs-keyword">return</span> e<br>    <span class="hljs-keyword">return</span> d<br><br><span class="hljs-meta">@c(<span class="hljs-params">a=<span class="hljs-number">1</span>,b=<span class="hljs-number">2</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">f</span>():<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;f&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>这样的方式是正确的，但如果使用 <code>@c</code> 的方式，则会抛出异常</p>
+<p>得利用装饰器的基本性质来分得</p>
+<ul>
+<li><code>func</code> 是放在装饰器的第一个参数传进来的</li>
+<li>而现在的 <code>c</code> 不是一个装饰器，而是一个生产装饰器的工厂</li>
+<li>实际的所用的装饰器是 <code>d</code></li>
+<li>上述代码的本质使用应该如下:<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">c</span>(<span class="hljs-params">a=<span class="hljs-number">1</span>, b=<span class="hljs-number">2</span></span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">d</span>(<span class="hljs-params">func</span>):<br>        <span class="hljs-keyword">def</span> <span class="hljs-title function_">e</span>(<span class="hljs-params">*args, **kwargs</span>):<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;a=<span class="hljs-subst">&#123;a&#125;</span>, b=<span class="hljs-subst">&#123;b&#125;</span>&#x27;</span>)<br>            <span class="hljs-keyword">return</span> func(*args, **kwargs)<br>        <span class="hljs-keyword">return</span> e<br>    <span class="hljs-keyword">return</span> d<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">f</span>():<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;f&#x27;</span>)<br><br>f = c(a=<span class="hljs-number">2</span>,b=<span class="hljs-number">3</span>)(f)<br></code></pre></td></tr></table></figure></li>
+<li>也就是说我们可以既把 <code>c</code> 当做装饰器工厂，又把 <code>c</code> 当做装饰器本身</li>
+<li>什么时候当做工厂，什么时候当装饰器，由是否传入函数可以知道</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">c</span>(<span class="hljs-params">method=<span class="hljs-literal">None</span>, *, a=<span class="hljs-number">1</span>, b=<span class="hljs-number">2</span></span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">d</span>(<span class="hljs-params">func</span>):<br>        <span class="hljs-keyword">def</span> <span class="hljs-title function_">e</span>(<span class="hljs-params">*args, **kwargs</span>):<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;a=<span class="hljs-subst">&#123;a&#125;</span>, b=<span class="hljs-subst">&#123;b&#125;</span>&#x27;</span>)<br>            <span class="hljs-keyword">return</span> func(*args, **kwargs)<br>        <span class="hljs-keyword">return</span> e<br>    <span class="hljs-keyword">if</span> method <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>        <span class="hljs-keyword">return</span> d<br>    <span class="hljs-keyword">return</span> d(method)<br><br><span class="hljs-meta">@c</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">f</span>():<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;f&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>还有另外一种更简单的写法:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> functools <span class="hljs-keyword">import</span> partial<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">c</span>(<span class="hljs-params">method=<span class="hljs-literal">None</span>, *, a=<span class="hljs-number">1</span>, b=<span class="hljs-number">2</span></span>):<br>    <span class="hljs-keyword">if</span> method <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>        <span class="hljs-keyword">return</span> partial(c, a=a, b=b)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">e</span>(<span class="hljs-params">*args, **kwargs</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;a=<span class="hljs-subst">&#123;a&#125;</span>, b=<span class="hljs-subst">&#123;b&#125;</span>&#x27;</span>)<br>        <span class="hljs-keyword">return</span> method(*args, **kwargs)<br>    <span class="hljs-keyword">return</span> e<br><br><span class="hljs-meta">@c</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">f</span>():<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;f&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<h2 id="装饰器类"><a href="#装饰器类" class="headerlink" title="装饰器类"></a>装饰器类</h2><p>可以先给类添加 <code>__call__</code> 方法: </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, func</span>):<br>        self.func = func<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__call__</span>(<span class="hljs-params">self, *args, **kwargs</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;before call...&#x27;</span>)<br>        res = self.func(*args, **kwargs)<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;after call...&#x27;</span>)<br>        <span class="hljs-keyword">return</span> res<br><br><span class="hljs-meta">@A</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">f</span>():<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;f&#x27;</span>)<br>f()<br></code></pre></td></tr></table></figure>
+
+<p>上面的代码确实可以成功运行，如果用于其他类方法的装饰器时候就会出错:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">B</span>:<br><span class="hljs-meta">    @A</span><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">fb</span>(<span class="hljs-params">self, k</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;fb&#x27;</span>)<br><br>b = B()<br>b.fb(<span class="hljs-number">1</span>)<br><br>TypeError: fb() missing <span class="hljs-number">1</span> required positional argument: <span class="hljs-string">&#x27;k&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>问题分析</p>
+<ul>
+<li>异常说是缺少 <code>k</code> 这个参数，但实际上我们已经传了</li>
+<li>考虑到这是个实例变量，很有可能是因为 <code>self</code> 没有自动传入成功,传入的 <code>1</code> 交给了 <code>self</code> 变量，导致 <code>k</code> 没有找到</li>
+<li>进一步分析，当 <code>A</code> 装饰器实例化的到时候，得到的 <code>fb</code> 并没有携带 <code>self</code></li>
+<li>而只是单纯的 <code>B.fb</code>,所以这就导致了后面调用的时候，缺少 <code>self</code> 的问题</li>
+</ul>
+<p>解决思路:</p>
+<ul>
+<li>由于实例化 <code>A</code> 的时候，确实没有 <code>B</code> 的实例化对象，因此不应该在构造函数修改</li>
+<li>再看看调用流程 <code>b.fb</code> 是 <code>A</code> 的一个实例, <code>b.fb()</code> 实际上在是在调用 调用 A的 <code>__call__</code>函数</li>
+<li>而这时候的的 <code>a</code> 实例是绑定在 <code>b</code> 上面的</li>
+<li>这样就好办了，此时可以考虑使用属性描述器协议，使用绑定方法进行调用</li>
+<li>将当前实例 <code>b</code> 绑定到 实例(方法) <code>a</code>上面去调用, 这样每次 <code>a</code> 被调用的时候，<code>b</code> 实例都会是第一个,达到传递 <code>self</code> 的效果</li>
+<li>但是为了兼容装饰的是普通函数，需要一次 <code>instance is Noe</code> 的判断</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, func</span>):<br>        self.func = func<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__call__</span>(<span class="hljs-params">self, *args, **kwargs</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;before call...&#x27;</span>)<br>        <span class="hljs-built_in">print</span>(*args, **kwargs)<br>        res = self.func(*args, **kwargs)<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;after call...&#x27;</span>)<br>        <span class="hljs-keyword">return</span> res<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__get__</span>(<span class="hljs-params">self, instance, owner</span>):<br>        <span class="hljs-keyword">if</span> instance <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>            <span class="hljs-keyword">return</span> self<br>        <span class="hljs-keyword">from</span> types <span class="hljs-keyword">import</span> MethodType<br>        <span class="hljs-keyword">return</span> MethodType(self, instance)<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">B</span>:<br><span class="hljs-meta">    @A</span><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">fb</span>(<span class="hljs-params">self, k</span>):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;fb&#x27;</span>)<br><br>b = B()<br>b.fb(<span class="hljs-number">1</span>)<br></code></pre></td></tr></table></figure>
+
+<p>To be continue….</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/python/" class="category-chain-item">python</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/python/">#python</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>python神奇的装饰器</div>
+      <div>https://nicesonec.gitee.io/2020/10/28/python神奇的装饰器/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Mao</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年10月28日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/10/09/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" title="设计模式">
+                        <span class="hidden-mobile">设计模式</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hello</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

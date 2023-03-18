@@ -1,0 +1,705 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Mao">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Python 神奇的迭代迭代器使用迭代器基本使用，就如下代码一样 123a &#x3D; [1, 2, 3, 4, 5]for n in a:    print(n)  for in 原理使用 for n in xx 时  要求循环迭代的对象必须得是 collections.Iterable(可迭代对象) 的一个实例 然后使用内置方法 inter(xx) 获取到迭代器由可迭代器对象生成 本质上调用了 xx.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python神奇的迭代">
+<meta property="og:url" content="https://nicesonec.gitee.io/2020/09/25/python%E7%A5%9E%E5%A5%87%E7%9A%84%E8%BF%AD%E4%BB%A3/index.html">
+<meta property="og:site_name" content="Mao&#39;s blog">
+<meta property="og:description" content="Python 神奇的迭代迭代器使用迭代器基本使用，就如下代码一样 123a &#x3D; [1, 2, 3, 4, 5]for n in a:    print(n)  for in 原理使用 for n in xx 时  要求循环迭代的对象必须得是 collections.Iterable(可迭代对象) 的一个实例 然后使用内置方法 inter(xx) 获取到迭代器由可迭代器对象生成 本质上调用了 xx.">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-09-24T20:46:43.000Z">
+<meta property="article:modified_time" content="2020-11-22T06:54:36.000Z">
+<meta property="article:author" content="Mao">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>python神奇的迭代 - Mao&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"nicesonec.gitee.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":"❡"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Mao&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="python神奇的迭代"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-09-25 04:46" pubdate>
+          2020年9月25日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          2.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          <!-- compatible with older versions-->
+          20 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">python神奇的迭代</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Python-神奇的迭代"><a href="#Python-神奇的迭代" class="headerlink" title="Python 神奇的迭代"></a>Python 神奇的迭代</h1><h2 id="迭代器使用"><a href="#迭代器使用" class="headerlink" title="迭代器使用"></a>迭代器使用</h2><p>迭代器基本使用，就如下代码一样</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">a = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>]<br><span class="hljs-keyword">for</span> n <span class="hljs-keyword">in</span> a:<br>    <span class="hljs-built_in">print</span>(n)<br></code></pre></td></tr></table></figure>
+
+<h2 id="for-in-原理"><a href="#for-in-原理" class="headerlink" title="for in 原理"></a>for in 原理</h2><p>使用 <code>for n in xx</code> 时</p>
+<ul>
+<li>要求循环迭代的对象必须得是 <code>collections.Iterable</code>(可迭代对象) 的一个实例</li>
+<li>然后使用内置方法 <code>inter(xx)</code> 获取到<code>迭代器</code>由可迭代器对象生成</li>
+<li>本质上调用了 <code>xx.__iter__()</code> 方法, 这也是 <code>Iterable</code> 的抽象方法</li>
+<li>拿到的迭代器才是真正迭代</li>
+<li>传入 next 中调用 <code>next(it)</code> 则会调用 <code>it.__next__()</code> 方法</li>
+<li>当 <code>next(it)</code> 一直调用到没有元素的时候，会抛出 <code>StopIteration</code> 异常</li>
+</ul>
+<p>注意的是</p>
+<ul>
+<li>迭代器只能用一次，下次用重新生成</li>
+<li>两个迭代器之间没有干扰</li>
+<li>迭代器也可以用 <code>for</code> 遍历,说明迭代器对象也是可迭代对象，只不过返回了 <code>self</code></li>
+</ul>
+<h2 id="撸一个可迭代对象"><a href="#撸一个可迭代对象" class="headerlink" title="撸一个可迭代对象"></a>撸一个可迭代对象</h2><p>场景:</p>
+<p>用户对象有自己的一些属性，比如说姓名，年龄，性别。现在希望能对用户对象遍历，获取用户对象的相关信息</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, name, age, gender</span>):<br>        self.name = name<br>        self.age = age<br>        self.gender = gender<br>        self.index = <span class="hljs-number">0</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__iter__</span>(<span class="hljs-params">self</span>):<br>        self.index = <span class="hljs-number">0</span><br>        <span class="hljs-keyword">return</span> self<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__next__</span>(<span class="hljs-params">self</span>):<br>        self.index += <span class="hljs-number">1</span><br>        <span class="hljs-keyword">if</span> self.index &gt; <span class="hljs-number">3</span>:<br>            <span class="hljs-keyword">raise</span> StopIteration<br>        <span class="hljs-keyword">if</span> self.index == <span class="hljs-number">1</span>:<br>            <span class="hljs-keyword">return</span> self.name<br>        <span class="hljs-keyword">elif</span> self.index == <span class="hljs-number">2</span>:<br>            <span class="hljs-keyword">return</span> self.age<br>        <span class="hljs-keyword">else</span>:<br>            <span class="hljs-keyword">return</span> self.gender<br><br><br>a = User(<span class="hljs-string">&#x27;mao&#x27;</span>, <span class="hljs-number">18</span>, <span class="hljs-string">&#x27;n&#x27;</span>)<br><span class="hljs-keyword">for</span> n <span class="hljs-keyword">in</span> a:<br>    <span class="hljs-built_in">print</span>(n)<br>        <br></code></pre></td></tr></table></figure>
+
+<p>相当于用户对象自己是可迭代对象，同时也是迭代器，当然创建一个专门当迭代器的类也可以。</p>
+<p>上面的代码是我们手动使用了一个 <code>index</code> 变量来维护迭代器。也可以用生成器来自动维护得带器 如下代码:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, name, age, gender</span>):<br>        self.name = name<br>        self.age = age<br>        self.gender = gender<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__iter__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">yield</span> self.name<br>        <span class="hljs-keyword">yield</span> self.age<br>        <span class="hljs-keyword">yield</span> self.gender<br></code></pre></td></tr></table></figure>
+
+<h2 id="反向迭代"><a href="#反向迭代" class="headerlink" title="反向迭代"></a>反向迭代</h2><h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p>有一个变量 <code>a = [1, 2, 3, 4, 5]</code>,要对这个变量进行反向迭代操作</p>
+<ul>
+<li>使用 <code>a.reverse()</code> 方法,将 a 逆序再迭代，但修改了源数组</li>
+<li>使用切片操作 <code>a[::-1]</code> 得到新的逆序列表，再迭代,但浪费的空间</li>
+<li>正常操作需要使用内置函数 <code>reversed</code>:<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">k = <span class="hljs-built_in">reversed</span>(a)  <span class="hljs-comment"># 会得到反向迭代器对象,和 inter() 刚好想法</span><br><br><span class="hljs-comment"># 但传入 reversed 的函数的实例必须实现 __reversed__ 方法</span><br></code></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="整一个支持反向迭代的类"><a href="#整一个支持反向迭代的类" class="headerlink" title="整一个支持反向迭代的类"></a>整一个支持反向迭代的类</h3><p>直接在上面的普通迭代对象加一个 <code>__reversed__</code> 方法即可</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, name, age, gender</span>):<br>        self.name = name<br>        self.age = age<br>        self.gender = gender<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__iter__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">yield</span> self.name<br>        <span class="hljs-keyword">yield</span> self.age<br>        <span class="hljs-keyword">yield</span> self.gender<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__reversed__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">yield</span> self.gender<br>        <span class="hljs-keyword">yield</span> self.age<br>        <span class="hljs-keyword">yield</span> self.name<br><br><br>u = User(<span class="hljs-string">&#x27;mao&#x27;</span>, <span class="hljs-number">18</span>, <span class="hljs-string">&#x27;n&#x27;</span>)<br><span class="hljs-keyword">for</span> v <span class="hljs-keyword">in</span> <span class="hljs-built_in">reversed</span>(u):<br>    <span class="hljs-built_in">print</span>(v)<br></code></pre></td></tr></table></figure>
+
+<h2 id="Iterable-进行切片操作"><a href="#Iterable-进行切片操作" class="headerlink" title="Iterable 进行切片操作"></a>Iterable 进行切片操作</h2><h3 id="切片操作使用"><a href="#切片操作使用" class="headerlink" title="切片操作使用"></a>切片操作使用</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">a = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>]<br><br><span class="hljs-keyword">for</span> n <span class="hljs-keyword">in</span> a[<span class="hljs-number">2</span>:<span class="hljs-number">5</span>]:<br>    <span class="hljs-built_in">print</span>(n)<br><span class="hljs-comment"># 输出 3 4 5</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="切片实现"><a href="#切片实现" class="headerlink" title="切片实现"></a>切片实现</h3><ul>
+<li><code>[]</code> 运算符重载的方法是 <code>__getitem__</code> 即 <code>a[2]</code> &lt;=&gt; <code>a.__getitem__</code></li>
+<li><code>[]</code> 切片也是一样的, <code>a[2:4:1]</code> &lt;=&gt; <code>a.__getitem__(slice(2,4[,1]))</code><ul>
+<li><code>slice</code> 是 python 的一个内置函数</li>
+<li>参数为 起始值，结束值，步进</li>
+</ul>
+</li>
+<li>使用 <code>itertools.islice()</code> 方法, 将一个<code>可迭代</code>对象转换为一个<code>切片对象</code></li>
+<li>切片对象也可迭代</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">counter</span>(<span class="hljs-params">n</span>):<br>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>        <span class="hljs-keyword">yield</span> n<br>        n += <span class="hljs-number">1</span><br><br><br><span class="hljs-keyword">from</span> itertools <span class="hljs-keyword">import</span> islice<br><br>s = islice(counter(<span class="hljs-number">0</span>), <span class="hljs-number">100</span>, <span class="hljs-number">200</span>)<br><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> s:<br>    <span class="hljs-built_in">print</span>(i)<br><span class="hljs-comment"># 输出 100 - 199 的数</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>islice 原理</strong></p>
+<ul>
+<li>从最前开始依次读取数据，但不返回数据</li>
+<li>直到<code>起始值</code>的时候，才开始返回结果</li>
+<li>超过了<code>结束值</code>,就结束</li>
+</ul>
+<h3 id="实现一个-islice"><a href="#实现一个-islice" class="headerlink" title="实现一个 islice"></a>实现一个 islice</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">counter</span>(<span class="hljs-params">n</span>):<br>    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>        <span class="hljs-keyword">yield</span> n<br>        n += <span class="hljs-number">1</span><br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">mslice</span>(<span class="hljs-params">it, s, e, j=<span class="hljs-number">1</span></span>):<br>    cur = <span class="hljs-number">0</span><br>    <span class="hljs-keyword">while</span> cur &lt; e:<br>        d = <span class="hljs-built_in">next</span>(it)<br>        <span class="hljs-keyword">if</span> cur &gt;= s:<br>            <span class="hljs-comment"># 此时 s &lt;= cur &lt; s 符合要求</span><br>            <span class="hljs-keyword">yield</span> d<br>        cur += <span class="hljs-number">1</span><br><br><br>s = mslice(counter(<span class="hljs-number">0</span>), <span class="hljs-number">100</span>, <span class="hljs-number">200</span>)<br><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> s:<br>    <span class="hljs-built_in">print</span>(i)<br><span class="hljs-comment"># 一样输出 100 - 199 的数</span><br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/python/" class="category-chain-item">python</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/python/">#python</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>python神奇的迭代</div>
+      <div>https://nicesonec.gitee.io/2020/09/25/python神奇的迭代/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Mao</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年9月25日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/10/09/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" title="设计模式">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">设计模式</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/09/25/CDN%E5%9F%BA%E7%A1%80/" title="CDN基础">
+                        <span class="hidden-mobile">CDN基础</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hello</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
